@@ -1,0 +1,12 @@
+# WaltherNeo board configuration
+
+# Copyright (c) 2016 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_WALTHERNEOV2 || BOARD_WALTHERNEOV3
+
+config BOARD
+	default "waltherneov2" if BOARD_WALTHERNEOV2
+	default "waltherneov3" if BOARD_WALTHERNEOV3
+
+endif # BOARD_WALTHERNEOV2 V3

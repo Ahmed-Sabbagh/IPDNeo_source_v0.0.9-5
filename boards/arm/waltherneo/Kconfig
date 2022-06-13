@@ -1,0 +1,9 @@
+# WaltherNeo board configuration
+
+# Copyright (c) 2016 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config GPIO_AS_PINRESET
+	bool "GPIO as pin reset (reset button)"
+	default y
+	depends on BOARD_WALTHERNEOV2 || BOARD_WALTHERNEOV3

@@ -1,0 +1,11 @@
+# WaltherNeov4 board configuration
+
+# Copyright (c) 2016 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+if BOARD_WALTHERNEOV4
+
+config BOARD
+	default "waltherneov4"
+
+endif # BOARD_WALTHERNEOV4

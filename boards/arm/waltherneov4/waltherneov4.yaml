@@ -1,0 +1,10 @@
+identifier: waltherneov4
+name: WaltherNeov4NRF52832
+type: mcu
+arch: arm
+toolchain:
+  - zephyr
+  - gnuarmemb
+supported:
+  - ble
+  - ieee802154

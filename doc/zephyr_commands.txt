@@ -1,0 +1,67 @@
+west build -p auto -b nrf52_adafruit_feather samples/basic/blinky
+
+sudo dpkg -i /workdir/JLink_Linux_V672d_x86_64.deb
+
+west flash --runner jlink
+
+
+west build -p auto -b nrf52_adafruit_feather samples/bluetooth/beacon
+
+
+west build -p auto -b nrf52_adafruit_feather samples/bluetooth/mesh
+
+### open kmenu config ###
+west build -b nrf52_adafruit_feather -t menuconfig
+
+
+### bootloader with default (bootloader/mcuboot/ipdneoprivatekey.pem) cert ###
+pip3 install -r ../bootloader/scripts/requirements.txt
+west build -d build/bootloader/ -b waltherneo ../bootloader/mcuboot/boot/zephyr/
+
+
+west build -t clean
+
+#### Custom Board #####
+
+west build -p auto -b waltherneo -d build/waltherneo -- -DBOARD_ROOT=samples/bluetooth/adcmesh_demo/ samples/bluetooth/adcmesh_demo
+
+### build with bootloader support -> overlay
+west build -p auto -b waltherneo -d build/waltherneo -- -DBOARD_ROOT=samples/bluetooth/adcmesh_demo/ -DOVERLAY_CONFIG=overlay-mcuboot.conf samples/bluetooth/adcmesh_demo
+
+west flash --runner jlink -d build/waltherneo
+
+### Custom Bootloader ###
+### install python req.
+### cd ~/mcuboot  # or to your directory where mcuboot is cloned
+### pip3 install --user -r scripts/requirements.txt
+### generate new private and public key with command (only once requred):
+### ./scripts/imgtool.py keygen -k ipdneoprivatekey.pem -t rsa-2048
+### copy private key to root folder of bootloader (bootloader/)
+### edit prj.conf in bootloader/mcuboot/boot/zephyr/
+### set -> CONFIG_BOOT_SIGNATURE_KEY_FILE="ipdneoprivatekey.pem"
+### set also -> CONFIG_BOOT_SIGNATURE_TYPE_RSA=y
+### build bootloader with ipneo key (adafruit board has rtc crystal and is no equalent)
+
+west build -d build/bootloader/ -b waltherneo ../bootloader/mcuboot/boot/zephyr/
+west flash --runner jlink -d build/bootloader
+
+### sign every image that will be build
+
+#install image tool - but it is still placed in the bootloader folder
+pip3 install --user imgtool
+
+#sign builed image
+west sign --tool-path ../bootloader/mcuboot/scripts/imgtool.py -t imgtool -d build/waltherneo -- --key samples/bluetooth/adcmesh_demo/key/ipdneoprivatekey.pem
+
+#flash signed image
+west flash --runner jlink -d build/waltherneo/ --bin-file build/waltherneo/zephyr/zephyr.signed.bin
+
+### or build, sign and flash with script
+./buildsignflash_neo.sh 0.0.5+0
+
+
+
+### mcumgr cli
+
+sudo ./../bootloader/mynewt-mcumgr-cli/mcumgr/mcumgr --conntype ble --connstring peer_name='IPDNeo' echo hello
+
